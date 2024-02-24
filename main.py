@@ -15,6 +15,7 @@ url_origin = 'https://bingx.com'
 endpoint_url = '/en-us/support/categories/360002065274-Announcements/?sectionId=4483720972569'
 url = url_origin + endpoint_url
 
+
 user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
@@ -71,8 +72,7 @@ class TG_ASSISTENT(CONNECTOR_TG):
         for i in range(retry_number):
             try:
                 # self.bot.send_message(message.chat.id, response_message)
-                self.bot.send_message(chat_id=self.CHAT_ID, text=response_message)   
-                             
+                self.bot.send_message(chat_id=self.CHAT_ID, text=response_message)                            
                 return message.text
             except Exception as ex:                
                 time.sleep(1.1 + i*decimal)                   
@@ -84,39 +84,39 @@ class BINgX_parser(TG_ASSISTENT):
 
     def get_bingX_data(self, message):        
         first_request_flag = True 
-        before_getting_post = None 
+        before_title = None 
         random_range_from = 181
         random_range_to = 223
-        sleep_to = random.randrange(random_range_from, random_range_to)
-        seconds_counter = 0
-        while True:
-            coin_name = None                     
-            current_getting_post = None
-            seconds_counter += 2
+        retry_gert_data_counter = 0
+        while True:                                
+            current_link = None            
             if self.stop_flag:
                 message.text = self.connector_func(message, "The pogramm was stoped!")
-                return
-            if seconds_counter >= sleep_to or first_request_flag:
-                seconds_counter = 0
-                sleep_to = random.randrange(random_range_from, random_range_to)                     
-                try:                 
-                    r = requests.get(url,  headers=headers)   
-                    print(r)         
-                    soup = BeautifulSoup(r.text, 'lxml')
-                    current_getting_post = url_origin + soup.find('ul', class_='article-list').find_all('li', class_='article-item')[0].find('a').get('href')
-                    if not current_getting_post:
-                        message.text = self.connector_func(message, "Some problem with getting listings data...")
-                        time.sleep(60)
-                    if first_request_flag:
-                        before_getting_post = current_getting_post
-                        first_request_flag = False                    
-                        message.text = self.connector_func(message, before_getting_post)
-                    if current_getting_post != before_getting_post:
-                        before_getting_post = current_getting_post
-                        message.text = self.connector_func(message, before_getting_post)                
-                except Exception as ex:
-                    print(ex)                    
-            time.sleep(2)
+                return                 
+            try:                 
+                r = requests.get(url,  headers=headers)   
+                print(r)         
+                soup = BeautifulSoup(r.text, 'lxml')                
+                dataa = soup.find('ul', class_='article-list').find_all('li', class_='article-item')[0].find('a')
+                if not dataa:  
+                    retry_gert_data_counter += 1
+                    if retry_gert_data_counter == 3:
+                        return                  
+                    time.sleep(60)
+                    
+                cur_title = dataa.find('div', class_='article-title').get_text().strip()
+                current_link = url_origin + dataa.get('href').strip()
+
+                if first_request_flag:
+                    before_title = cur_title
+                    first_request_flag = False                    
+                    message.text = self.connector_func(message, current_link)
+                if cur_title != before_title:
+                    before_title = cur_title
+                    message.text = self.connector_func(message, current_link)                
+            except Exception as ex:
+                print(ex)  
+            time.sleep(random.randrange(random_range_from, random_range_to))                
 # //////////////////////////////////////////////////////////////////////////////////////////////////////
                 
 class TG_MANAGER(BINgX_parser):
