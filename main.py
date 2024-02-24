@@ -103,7 +103,7 @@ class BINgX_parser(TG_ASSISTENT):
                     if retry_gert_data_counter == 3:
                         return                  
                     time.sleep(60)
-                    
+
                 cur_title = dataa.find('div', class_='article-title').get_text().strip()
                 current_link = url_origin + dataa.get('href').strip()
 
@@ -118,27 +118,27 @@ class BINgX_parser(TG_ASSISTENT):
                 print(ex)  
             time.sleep(random.randrange(random_range_from, random_range_to))                
 # //////////////////////////////////////////////////////////////////////////////////////////////////////
-                
 class TG_MANAGER(BINgX_parser):
     def __init__(self):
         super().__init__()
+        self.register_handlers()
+
+    def register_handlers(self):
+        @self.bot.message_handler(commands=['start'])
+        @self.bot.message_handler(func=lambda message: message.text == 'START')
+        def handle_start_input(message):
+            self.init_init()    
+            print('hello1')            
+            response_message = "Hello!"
+            self.bot.send_message(message.chat.id, response_message, reply_markup=self.menu_markup)
+            get_bingX_data_resp = self.get_bingX_data(message)
 
     def run(self):  
         try:          
-            @self.bot.message_handler(commands=['start'])
-            @self.bot.message_handler(func=lambda message: message.text == 'START')
-            def handle_start_input(message):
-                self.init_init()    
-                print('hello1')            
-                response_message = "Hello!"
-                self.bot.send_message(message.chat.id, response_message, reply_markup=self.menu_markup)
-                get_bingX_data_resp = self.get_bingX_data(message)
-                return   
-
-            self.bot.polling()
+            self.bot.infinity_polling()
         except Exception as ex:
             print(ex)
-
+                
 def main():    
     my_bot = TG_MANAGER()
     time.sleep(1)    
