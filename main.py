@@ -85,8 +85,8 @@ class BINgX_parser(TG_ASSISTENT):
     def get_bingX_data(self, message):        
         first_request_flag = True 
         before_title = None 
-        random_range_from = 181
-        random_range_to = 223
+        random_range_from = 281
+        random_range_to = 423
         retry_gert_data_counter = 0
         while True:                                
             current_link = None            
