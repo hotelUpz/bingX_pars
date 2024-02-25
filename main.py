@@ -128,7 +128,7 @@ class TG_MANAGER(BINgX_parser):
         @self.bot.message_handler(func=lambda message: message.text == 'START')
         def handle_start_input(message):
             self.init_init()    
-            print('hello1')            
+            print('hello1')           
             response_message = "Hello!"
             self.bot.send_message(message.chat.id, response_message, reply_markup=self.menu_markup)
             get_bingX_data_resp = self.get_bingX_data(message)
